@@ -38,11 +38,47 @@ python manage.py runserver
 The API is then available at `http://127.0.0.1:8000/`. While the game
 endpoints are still being built, the following are already wired up:
 
-| URL | Description |
-| --- | --- |
-| `/api/health/` | Liveness probe, returns `{"status": "ok"}` |
-| `/api/schema/swagger-ui/` | Swagger UI (auto-generated) |
-| `/admin/` | Django admin (requires `createsuperuser`) |
+| Method | URL | Description |
+| --- | --- | --- |
+| `GET` | `/api/health/` | Liveness probe, returns `{"status": "ok"}` |
+| `GET` | `/api/schema/swagger-ui/` | Swagger UI (auto-generated) |
+| `POST` | `/api/auth/register/` | Create a user, returns an auth token |
+| `POST` | `/api/auth/login/` | Exchange username + password for an auth token |
+| `POST` | `/api/games/` | Start a game against an opponent |
+| `GET` | `/api/games/` | List your games |
+| `GET` | `/api/games/{id}/` | Game state and rendered board |
+| `POST` | `/api/games/{id}/moves/` | Play `{"row": r, "col": c}` |
+| `GET` | `/api/games/{id}/moves/` | Move log of the game |
+| `GET` | `/admin/` | Django admin (requires `createsuperuser`) |
+
+### Playing a quick game with `curl`
+
+```bash
+# Register two players
+ALICE=$(curl -s -X POST http://localhost:8000/api/auth/register/ \
+  -H 'Content-Type: application/json' \
+  -d '{"username":"alice","password":"secret123"}' | jq -r .token)
+
+BOB=$(curl -s -X POST http://localhost:8000/api/auth/register/ \
+  -H 'Content-Type: application/json' \
+  -d '{"username":"bob","password":"secret123"}' | jq -r .token)
+
+# Alice opens a game against Bob
+GAME=$(curl -s -X POST http://localhost:8000/api/games/ \
+  -H "Authorization: Token $ALICE" \
+  -H 'Content-Type: application/json' \
+  -d '{"opponent":"bob"}' | jq -r .id)
+
+# Alice plays
+curl -X POST http://localhost:8000/api/games/$GAME/moves/ \
+  -H "Authorization: Token $ALICE" \
+  -H 'Content-Type: application/json' \
+  -d '{"row":0,"col":0}'
+
+# Inspect the board (ASCII included)
+curl http://localhost:8000/api/games/$GAME/ \
+  -H "Authorization: Token $ALICE"
+```
 
 ## Running the tests
 

@@ -23,3 +23,11 @@ class CellAlreadyTakenError(InvalidMoveError):
 
 class GameAlreadyFinishedError(InvalidMoveError):
     """A move was attempted after the game ended (win or draw)."""
+
+
+class NotYourTurnError(InvalidMoveError):
+    """The user tried to play out of turn."""
+
+
+class NotAPlayerError(DomainError):
+    """The user is not part of this game."""
