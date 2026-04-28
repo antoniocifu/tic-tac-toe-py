@@ -48,7 +48,8 @@ extend-exclude = ["migrations"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP", "SIM", "RUF"]
-ignore = ["E501"]
+# RUF012 fights Django's ORM conventions (Meta.ordering, inlines, choices...).
+ignore = ["E501", "RUF012"]
 
 [tool.black]
 line-length = 100
