@@ -35,7 +35,14 @@ python manage.py migrate
 python manage.py runserver
 ```
 
-The API will be available at `http://127.0.0.1:8000/`.
+The API is then available at `http://127.0.0.1:8000/`. While the game
+endpoints are still being built, the following are already wired up:
+
+| URL | Description |
+| --- | --- |
+| `/api/health/` | Liveness probe, returns `{"status": "ok"}` |
+| `/api/schema/swagger-ui/` | Swagger UI (auto-generated) |
+| `/admin/` | Django admin (requires `createsuperuser`) |
 
 ## Running the tests
 
