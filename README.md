@@ -51,6 +51,17 @@ endpoints are still being built, the following are already wired up:
 | `GET` | `/api/games/{id}/moves/` | Move log of the game |
 | `GET` | `/admin/` | Django admin (requires `createsuperuser`) |
 
+### Trying it from Swagger UI
+
+The Swagger page at `/api/schema/swagger-ui/` lets you call every endpoint
+from the browser. To use the protected ones:
+
+1. Call `POST /api/auth/register/` with a username and password.
+2. Copy the `token` from the response.
+3. Click the green **Authorize** button (top right) and paste:
+   `Token <your-token>` (note the `Token ` prefix and the space).
+4. Now every "Try it out" call will be authenticated.
+
 ### Playing a quick game with `curl`
 
 ```bash
