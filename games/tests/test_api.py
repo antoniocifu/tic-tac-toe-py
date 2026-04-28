@@ -136,3 +136,30 @@ def test_move_log_endpoint(alice_client, bob_client, alice, bob):
     assert len(response.data) == 2
     assert response.data[0]["mark"] == "X"
     assert response.data[1]["mark"] == "O"
+
+
+@pytest.mark.django_db
+def test_scoreboard_endpoint(alice_client, alice, bob):
+    User.objects.create_user(username="charlie", password="secret123")
+    Game.objects.create(player_x=alice, player_o=bob, status="x_won", winner=alice)
+    Game.objects.create(player_x=bob, player_o=alice, status="draw", winner=None)
+    User.objects.create_user(username="nobody", password="secret123")
+
+    response = alice_client.get("/api/scoreboard/")
+
+    assert response.status_code == 200
+    assert [entry["username"] for entry in response.data] == ["alice", "bob"]
+    assert response.data[0] == {
+        "username": "alice",
+        "wins": 1,
+        "losses": 0,
+        "draws": 1,
+        "games_played": 2,
+    }
+    assert response.data[1] == {
+        "username": "bob",
+        "wins": 0,
+        "losses": 1,
+        "draws": 1,
+        "games_played": 2,
+    }

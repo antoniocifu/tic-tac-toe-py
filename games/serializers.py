@@ -82,3 +82,11 @@ class GameCreateSerializer(serializers.Serializer):
 class RegisterSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=150)
     password = serializers.CharField(write_only=True, min_length=4)
+
+
+class ScoreboardEntrySerializer(serializers.Serializer):
+    username = serializers.CharField()
+    wins = serializers.IntegerField()
+    losses = serializers.IntegerField()
+    draws = serializers.IntegerField()
+    games_played = serializers.IntegerField()

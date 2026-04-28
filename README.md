@@ -49,6 +49,7 @@ endpoints are still being built, the following are already wired up:
 | `GET` | `/api/games/{id}/` | Game state and rendered board |
 | `POST` | `/api/games/{id}/moves/` | Play `{"row": r, "col": c}` |
 | `GET` | `/api/games/{id}/moves/` | Move log of the game |
+| `GET` | `/api/scoreboard/` | Win/loss/draw summary per player |
 | `GET` | `/admin/` | Django admin (requires `createsuperuser`) |
 
 ### Trying it from Swagger UI

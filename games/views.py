@@ -1,11 +1,14 @@
 """HTTP views for the games API."""
 
-from django.db.models import Q
+from django.contrib.auth import get_user_model
+from django.db.models import Count, Q
 from rest_framework import mixins, status, viewsets
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from games import services
+from games.domain.status import Status
 from games.models import Game
 from games.serializers import (
     GameCreateSerializer,
@@ -13,7 +16,10 @@ from games.serializers import (
     GameListSerializer,
     MoveInputSerializer,
     MoveSerializer,
+    ScoreboardEntrySerializer,
 )
+
+User = get_user_model()
 
 
 class GameViewSet(
@@ -59,3 +65,41 @@ class GameViewSet(
             col=body.validated_data["col"],
         )
         return Response(MoveSerializer(move).data, status=status.HTTP_201_CREATED)
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def scoreboard_view(request):
+    queryset = (
+        User.objects.annotate(
+            wins=Count("games_won", distinct=True),
+            draws=Count(
+                "games_as_x",
+                filter=Q(games_as_x__status=Status.DRAW.value),
+                distinct=True,
+            )
+            + Count(
+                "games_as_o",
+                filter=Q(games_as_o__status=Status.DRAW.value),
+                distinct=True,
+            ),
+            games_played=Count("games_as_x", distinct=True) + Count("games_as_o", distinct=True),
+        )
+        .filter(games_played__gt=0)
+        .order_by("-wins", "username")
+    )
+
+    payload = []
+    for user in queryset:
+        losses = user.games_played - user.wins - user.draws
+        payload.append(
+            {
+                "username": user.username,
+                "wins": user.wins,
+                "losses": losses,
+                "draws": user.draws,
+                "games_played": user.games_played,
+            }
+        )
+
+    return Response(ScoreboardEntrySerializer(payload, many=True).data)
