@@ -62,6 +62,33 @@ from the browser. To use the protected ones:
    `Token <your-token>` (note the `Token ` prefix and the space).
 4. Now every "Try it out" call will be authenticated.
 
+## CLI mode
+
+Besides the REST API, the project also includes a small interactive CLI:
+
+```bash
+python manage.py play
+```
+
+You can also provide both players up front:
+
+```bash
+python manage.py play --player-x alice --player-o bob
+```
+
+Moves are entered as `row,col`, using zero-based coordinates:
+
+```text
+0,0
+1,1
+0,1
+2,2
+0,2
+```
+
+Type `q` at any time to stop the game. The current state is stored in
+SQLite, so the same game data is still visible from the API and the admin.
+
 ### Playing a quick game with `curl`
 
 ```bash
