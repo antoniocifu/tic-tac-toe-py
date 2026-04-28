@@ -83,6 +83,16 @@ def scoreboard_view(request):
                 filter=Q(games_as_o__status=Status.DRAW.value),
                 distinct=True,
             ),
+            losses=Count(
+                "games_as_x",
+                filter=Q(games_as_x__status=Status.O_WON.value),
+                distinct=True,
+            )
+            + Count(
+                "games_as_o",
+                filter=Q(games_as_o__status=Status.X_WON.value),
+                distinct=True,
+            ),
             games_played=Count("games_as_x", distinct=True) + Count("games_as_o", distinct=True),
         )
         .filter(games_played__gt=0)
@@ -91,12 +101,11 @@ def scoreboard_view(request):
 
     payload = []
     for user in queryset:
-        losses = user.games_played - user.wins - user.draws
         payload.append(
             {
                 "username": user.username,
                 "wins": user.wins,
-                "losses": losses,
+                "losses": user.losses,
                 "draws": user.draws,
                 "games_played": user.games_played,
             }

@@ -143,6 +143,7 @@ def test_scoreboard_endpoint(alice_client, alice, bob):
     User.objects.create_user(username="charlie", password="secret123")
     Game.objects.create(player_x=alice, player_o=bob, status="x_won", winner=alice)
     Game.objects.create(player_x=bob, player_o=alice, status="draw", winner=None)
+    Game.objects.create(player_x=alice, player_o=bob, status="in_progress", winner=None)
     User.objects.create_user(username="nobody", password="secret123")
 
     response = alice_client.get("/api/scoreboard/")
@@ -154,12 +155,12 @@ def test_scoreboard_endpoint(alice_client, alice, bob):
         "wins": 1,
         "losses": 0,
         "draws": 1,
-        "games_played": 2,
+        "games_played": 3,
     }
     assert response.data[1] == {
         "username": "bob",
         "wins": 0,
         "losses": 1,
         "draws": 1,
-        "games_played": 2,
+        "games_played": 3,
     }
